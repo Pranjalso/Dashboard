@@ -61,6 +61,7 @@ export default function PatientDetailPage() {
     dob: "",
     gender: "Male",
     phone: "",
+    city: "",
     lastVisit: "",
     status: "Active",
   });
@@ -102,6 +103,7 @@ export default function PatientDetailPage() {
         : "",
       gender: patient.gender || "Male",
       phone: patient.phone || "",
+      city: patient.city || "",
       lastVisit: patient.lastVisit || "",
       status: patient.status || "Active",
     });
@@ -118,6 +120,7 @@ export default function PatientDetailPage() {
       age: calcAge(form.dob),
       gender: form.gender,
       phone: form.phone.trim(),
+      city: form.city.trim(),
       lastVisit: form.lastVisit.trim(),
       status: form.status,
     };
@@ -300,6 +303,14 @@ export default function PatientDetailPage() {
                 />
               </div>
               <div>
+                <label className="block text-xs text-gray-500 mb-1">City</label>
+                <input
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
                 <label className="block text-xs text-gray-500 mb-1">Last Visit</label>
                 <input
                   value={form.lastVisit}
@@ -350,6 +361,10 @@ export default function PatientDetailPage() {
               <div>
                 <p className="text-gray-500">Gender</p>
                 <p className="font-medium text-gray-900">{patient.gender}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">City</p>
+                <p className="font-medium text-gray-900">{patient.city || "—"}</p>
               </div>
               <div>
                 <p className="text-gray-500">Phone</p>

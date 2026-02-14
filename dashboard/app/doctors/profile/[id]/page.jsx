@@ -40,7 +40,8 @@ const parseSchedule = (schedule) => {
 export default function DoctorDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const doctorId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const rawId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const doctorId = rawId ? decodeURIComponent(rawId) : null;
 
   const [doctors, setDoctors] = useState(null);
   const [form, setForm] = useState({

@@ -9,9 +9,10 @@ const initialPatients = [
     name: "John Doe",
     age: 35,
     gender: "Male",
+    city: "New York",
     phone: "+1 (555) 0123",
     lastVisit: "Oct 24, 2023",
-    nextAppointment: "Today, 10:00 AM",
+    nextAppointment: "Oct 24, 2023 10:00 AM",
     status: "Active",
     alerts: ["Allergic to Penicillin", "Mild Hypertension history"],
     doctor: "Dr. Sarah Smith",
@@ -24,9 +25,10 @@ const initialPatients = [
     name: "Jane Gill",
     age: 28,
     gender: "Female",
+    city: "Los Angeles",
     phone: "+1 (555) 0456",
     lastVisit: "Oct 23, 2023",
-    nextAppointment: "Tomorrow, 2:30 PM",
+    nextAppointment: "Oct 25, 2023 2:30 PM",
     status: "Active",
     alerts: ["None"],
     doctor: "Dr. Michael Adams",
@@ -39,9 +41,10 @@ const initialPatients = [
     name: "Robert Fox",
     age: 42,
     gender: "Male",
+    city: "Chicago",
     phone: "+1 (555) 0890",
     lastVisit: "Oct 22, 2023",
-    nextAppointment: "Oct 26, 2023",
+    nextAppointment: "Oct 26, 2023 9:00 AM",
     status: "Active",
     alerts: ["Diabetic"],
     doctor: "Dr. Sarah Smith",
@@ -54,9 +57,10 @@ const initialPatients = [
     name: "Emily Day",
     age: 31,
     gender: "Female",
+    city: "Houston",
     phone: "+1 (555) 0333",
     lastVisit: "Oct 21, 2023",
-    nextAppointment: "Oct 27, 2023",
+    nextAppointment: "Oct 27, 2023 11:00 AM",
     status: "Active",
     alerts: ["Asthma"],
     doctor: "Dr. Taylor Swift",
@@ -78,12 +82,9 @@ export default function PatientsPage() {
     dob: "",
     gender: "Male",
     phone: "",
-    lastVisit: "Today",
-    status: "Active",
+    city: "",
   });
-  const [viewPatient, setViewPatient] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const lastVisitOptions = ["Today", "Yesterday", "Oct 24, 2023", "Oct 23, 2023"];
   const [editPatient] = useState(null);
   const [editForm] = useState({
     id: "",
@@ -130,9 +131,10 @@ export default function PatientsPage() {
       age: calcAge(form.dob),
       gender: form.gender,
       phone: form.phone.trim(),
-      lastVisit: form.lastVisit.trim(),
+      city: form.city.trim(),
+      lastVisit: "New",
       nextAppointment: "",
-      status: form.status,
+      status: "Active",
     };
     setPatients((prev) => [newPatient, ...prev]);
     setShowModal(false);
@@ -141,8 +143,7 @@ export default function PatientsPage() {
       dob: "",
       gender: "Male",
       phone: "",
-      lastVisit: "Today",
-      status: "Active",
+      city: "",
     });
     setCurrentPage(1);
   };
@@ -279,6 +280,7 @@ export default function PatientsPage() {
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">PATIENT NAME</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">DATE OF BIRTH</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">GENDER</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">CITY</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">PHONE NUMBER</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">LAST VISIT</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">NEXT APPOINTMENT</th>
@@ -314,6 +316,7 @@ export default function PatientsPage() {
                       {patient.gender}
                     </span>
                   </td>
+                  <td className="py-4 px-6 text-sm text-gray-600">{patient.city || "—"}</td>
                   <td className="py-4 px-6 text-sm">{patient.phone}</td>
                   <td className="py-4 px-6 text-sm text-gray-600">{patient.lastVisit}</td>
                   <td className="py-4 px-6">
@@ -411,6 +414,10 @@ export default function PatientsPage() {
                   >
                     {patient.gender}
                   </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>City:</span>
+                  <span className="font-medium">{patient.city || "—"}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Phone:</span>
@@ -612,27 +619,13 @@ export default function PatientsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Last Visit</label>
-                  <select
-                    value={form.lastVisit}
-                    onChange={(e) => setForm({ ...form, lastVisit: e.target.value })}
+                  <label className="block text-sm text-gray-700 mb-1">City</label>
+                  <input
+                    value={form.city}
+                    onChange={(e) => setForm({ ...form, city: e.target.value })}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                  >
-                    {lastVisitOptions.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Status</label>
-                  <select
-                    value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                  >
-                    <option>Active</option>
-                    <option>Inactive</option>
-                  </select>
+                    placeholder="Enter city"
+                  />
                 </div>
               </div>
 

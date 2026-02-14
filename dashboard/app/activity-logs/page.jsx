@@ -4,52 +4,53 @@ import { useState, useMemo } from "react";
 const mockLogs = [
   {
     id: "LOG-12041",
-    type: "Appointment",
-    action: "Created appointment #APT-2041 for John Doe",
-    actor: "Frontdesk Staff",
-    severity: "info",
+    eventType: "New Appointment",
+    patientName: "John Doe",
+    appointmentId: "#APT-2041",
+    dateTime: "Oct 24, 2023 10:00 AM",
     timestamp: "2023-10-24 09:12 AM",
     source: "WHATSAPP",
   },
   {
     id: "LOG-12042",
-    type: "Clinical",
-    action: "Updated medication list for Jane Gill",
-    actor: "Dr. Sarah Smith",
-    severity: "high",
+    eventType: "New Patient Added",
+    patientName: "Jane Gill",
+    appointmentId: null,
+    dateTime: null,
     timestamp: "2023-10-24 09:25 AM",
     source: "STAFF ENTRY",
   },
   {
     id: "LOG-12043",
-    type: "Security",
-    action: "New device login detected for admin account",
-    actor: "System",
-    severity: "critical",
+    eventType: "Patient Deleted",
+    patientName: "Robert Fox",
+    appointmentId: null,
+    dateTime: null,
     timestamp: "2023-10-24 09:40 AM",
     source: "STAFF ENTRY",
   },
   {
     id: "LOG-12044",
-    type: "Patient",
-    action: "Patient portal password reset for Robert Fox",
-    actor: "System",
-    severity: "info",
+    eventType: "Patient Canceled Appointment",
+    patientName: "Emily Day",
+    appointmentId: "#APT-1027",
+    dateTime: "Oct 25, 2023 09:00 AM",
     timestamp: "2023-10-24 10:05 AM",
     source: "WHATSAPP",
   },
+  {
+    id: "LOG-12045",
+    eventType: "Patient Rescheduled Appointment",
+    patientName: "John Doe",
+    appointmentId: "#APT-2041",
+    dateTime: "Oct 26, 2023 2:00 PM",
+    timestamp: "2023-10-24 11:20 AM",
+    source: "STAFF ENTRY",
+  },
 ];
 
-const severityBadge = (level) => {
-  const value = level.toLowerCase();
-  if (value === "critical") return "bg-red-100 text-red-800";
-  if (value === "high") return "bg-amber-100 text-amber-800";
-  if (value === "info") return "bg-blue-100 text-blue-800";
-  return "bg-slate-100 text-slate-800";
-};
-
 const sourceBadge = (source) => {
-  const value = source.toUpperCase();
+  const value = source?.toUpperCase() || "";
   if (value === "WHATSAPP") return "bg-blue-50 text-blue-800";
   if (value === "STAFF ENTRY") return "bg-gray-100 text-gray-800";
   return "bg-slate-100 text-slate-800";
@@ -65,24 +66,31 @@ const splitTimestamp = (value) => {
 const getDatePart = (value) => splitTimestamp(value).date;
 const getTimePart = (value) => splitTimestamp(value).time;
 
+const getEventDetails = (log) => {
+  const parts = [];
+  if (log.patientName) parts.push(log.patientName);
+  if (log.appointmentId) parts.push(log.appointmentId);
+  if (log.dateTime) parts.push(log.dateTime);
+  return parts.join(" • ") || "—";
+};
+
 export default function ActivityLogsPage() {
-  const [severity, setSeverity] = useState("all");
+  const [eventFilter, setEventFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [type, setType] = useState("all");
 
   const filteredLogs = useMemo(() => {
     return mockLogs.filter((log) => {
-      if (severity !== "all" && log.severity.toLowerCase() !== severity) return false;
-      if (type !== "all" && log.type.toLowerCase() !== type) return false;
+      if (eventFilter !== "all" && log.eventType.toLowerCase().replace(/\s/g, "-") !== eventFilter) return false;
       if (!search.trim()) return true;
       const term = search.toLowerCase();
       return (
-        log.action.toLowerCase().includes(term) ||
-        log.actor.toLowerCase().includes(term) ||
+        log.eventType.toLowerCase().includes(term) ||
+        log.patientName?.toLowerCase().includes(term) ||
+        log.appointmentId?.toLowerCase().includes(term) ||
         log.id.toLowerCase().includes(term)
       );
     });
-  }, [severity, search, type]);
+  }, [eventFilter, search]);
 
   return (
     <div className="space-y-6">
@@ -97,64 +105,73 @@ export default function ActivityLogsPage() {
         <button className="btn-secondary text-sm">Export CSV</button>
       </div>
 
-      {/* Filters */}
+      {/* Filters - dark green toggle buttons */}
       <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 space-y-4">
         <div className="flex flex-col md:flex-row gap-4 justify-between">
           <div className="flex flex-wrap gap-2 text-xs md:text-sm">
             <button
-              onClick={() => setSeverity("all")}
+              onClick={() => setEventFilter("all")}
               className={`px-3 py-2 rounded-lg border text-xs md:text-sm ${
-                severity === "all"
-                  ? "bg-emerald-600 text-white border-emerald-600"
+                eventFilter === "all"
+                  ? "bg-[#0F766E] text-white border-[#0F766E]"
                   : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
               }`}
             >
-              All Severities
+              All
             </button>
             <button
-              onClick={() => setSeverity("info")}
+              onClick={() => setEventFilter("new-appointment")}
               className={`px-3 py-2 rounded-lg border text-xs md:text-sm ${
-                severity === "info"
-                  ? "bg-emerald-600 text-white border-emerald-600"
+                eventFilter === "new-appointment"
+                  ? "bg-[#0F766E] text-white border-[#0F766E]"
                   : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
               }`}
             >
-              Info
+              New Appointment
             </button>
             <button
-              onClick={() => setSeverity("high")}
+              onClick={() => setEventFilter("new-patient-added")}
               className={`px-3 py-2 rounded-lg border text-xs md:text-sm ${
-                severity === "high"
-                  ? "bg-emerald-600 text-white border-emerald-600"
+                eventFilter === "new-patient-added"
+                  ? "bg-[#0F766E] text-white border-[#0F766E]"
                   : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
               }`}
             >
-              High
+              New Patient Added
             </button>
             <button
-              onClick={() => setSeverity("critical")}
+              onClick={() => setEventFilter("patient-deleted")}
               className={`px-3 py-2 rounded-lg border text-xs md:text-sm ${
-                severity === "critical"
-                  ? "bg-emerald-600 text-white border-emerald-600"
+                eventFilter === "patient-deleted"
+                  ? "bg-[#0F766E] text-white border-[#0F766E]"
                   : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
               }`}
             >
-              Critical
+              Patient Deleted
+            </button>
+            <button
+              onClick={() => setEventFilter("patient-canceled-appointment")}
+              className={`px-3 py-2 rounded-lg border text-xs md:text-sm ${
+                eventFilter === "patient-canceled-appointment"
+                  ? "bg-[#0F766E] text-white border-[#0F766E]"
+                  : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+              }`}
+            >
+              Patient Canceled
+            </button>
+            <button
+              onClick={() => setEventFilter("patient-rescheduled-appointment")}
+              className={`px-3 py-2 rounded-lg border text-xs md:text-sm ${
+                eventFilter === "patient-rescheduled-appointment"
+                  ? "bg-[#0F766E] text-white border-[#0F766E]"
+                  : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+              }`}
+            >
+              Patient Rescheduled
             </button>
           </div>
 
           <div className="flex flex-wrap gap-3 items-center">
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white min-w-[140px]"
-            >
-              <option value="all">All Types</option>
-              <option value="appointment">Appointment</option>
-              <option value="clinical">Clinical</option>
-              <option value="patient">Patient</option>
-              <option value="security">Security</option>
-            </select>
             <div className="relative">
               <input
                 type="text"
@@ -181,7 +198,7 @@ export default function ActivityLogsPage() {
         </div>
       </div>
 
-      {/* Logs table */}
+      {/* Logs table - Event, Details, Timestamp, Source (Actor and Severity hidden) */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         {/* Desktop */}
         <div className="hidden md:block overflow-x-auto">
@@ -189,8 +206,6 @@ export default function ActivityLogsPage() {
             <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
               <tr>
                 <th className="text-left px-4 py-3">Event</th>
-                <th className="text-left px-4 py-3">Actor</th>
-                <th className="text-left px-4 py-3">Severity</th>
                 <th className="text-left px-4 py-3">Timestamp</th>
                 <th className="text-left px-4 py-3">Source</th>
               </tr>
@@ -199,18 +214,8 @@ export default function ActivityLogsPage() {
               {filteredLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{log.type}</div>
-                    <div className="text-xs text-gray-600">{log.action}</div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-800">{log.actor}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${severityBadge(
-                        log.severity
-                      )}`}
-                    >
-                      {log.severity}
-                    </span>
+                    <div className="font-medium text-gray-900">{log.eventType}</div>
+                    <div className="text-xs text-gray-600 mt-0.5">{getEventDetails(log)}</div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-800">
                     <div className="font-semibold text-gray-900">{getDatePart(log.timestamp)}</div>
@@ -231,7 +236,7 @@ export default function ActivityLogsPage() {
               ))}
               {filteredLogs.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">
+                  <td colSpan={3} className="px-4 py-6 text-center text-sm text-gray-500">
                     No activity logs match the selected filters.
                   </td>
                 </tr>
@@ -244,33 +249,21 @@ export default function ActivityLogsPage() {
         <div className="md:hidden p-4 space-y-3">
           {filteredLogs.map((log) => (
             <div key={log.id} className="border border-gray-200 rounded-xl p-3 text-sm">
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-semibold text-gray-900">{log.type}</span>
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ${severityBadge(
-                    log.severity
-                  )}`}
-                >
-                  {log.severity}
-                </span>
-              </div>
-              <p className="text-xs text-gray-600 mb-1">{log.action}</p>
+              <div className="font-semibold text-gray-900 mb-1">{log.eventType}</div>
+              <p className="text-xs text-gray-600 mb-2">{getEventDetails(log)}</p>
               <p className="text-[11px] text-gray-500 mb-1">
                 <span className="font-semibold text-gray-900">{getDatePart(log.timestamp)}</span>{" "}
                 {getTimePart(log.timestamp) && (
                   <span className="text-gray-500">• {getTimePart(log.timestamp)}</span>
-                )}{" "}
-                • {log.actor}
+                )}
               </p>
-              <p className="text-[11px] text-gray-500">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${sourceBadge(
-                    log.source
-                  )}`}
-                >
-                  {log.source}
-                </span>
-              </p>
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${sourceBadge(
+                  log.source
+                )}`}
+              >
+                {log.source}
+              </span>
             </div>
           ))}
           {filteredLogs.length === 0 && (

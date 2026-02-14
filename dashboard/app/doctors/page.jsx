@@ -251,10 +251,10 @@ export default function DoctorsPage() {
                     <td className="p-4">
                       <div className="flex gap-2">
                         <Link
-  href={`/doctors/profile/${doctor.id}`}
-  className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
-  aria-label="View"
->
+                          href={`/doctors/profile/${encodeURIComponent(doctor.id)}`}
+                          className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+                          aria-label="View"
+                        >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
@@ -365,7 +365,7 @@ export default function DoctorsPage() {
                   </div>
                   <div className="flex gap-2">
                     <Link
-                      href={`/doctors/profile/${doctor.id}`}
+                      href={`/doctors/profile/${encodeURIComponent(doctor.id)}`}
                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
                       aria-label="View"
                     >

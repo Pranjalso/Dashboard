@@ -1,5 +1,31 @@
- "use client";
-import { useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
+
+// Generate 15-min time slots from 8:00 AM to 6:00 PM
+const generateTimeSlots = () => {
+  const slots = [];
+  const fmt = (h, m) => {
+    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${h12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+  };
+  for (let totalMins = 8 * 60; totalMins < 18 * 60; totalMins += 15) {
+    const h1 = Math.floor(totalMins / 60);
+    const m1 = totalMins % 60;
+    const h2 = Math.floor((totalMins + 15) / 60);
+    const m2 = (totalMins + 15) % 60;
+    slots.push(`${fmt(h1, m1)} - ${fmt(h2, m2)}`);
+  }
+  return slots;
+};
+
+const TIME_SLOTS = generateTimeSlots();
+
+const defaultDoctors = [
+  { id: "#DOC-8821", name: "Dr. Sarah Jenkins" },
+  { id: "#DOC-7742", name: "Dr. Michael Chen" },
+  { id: "#DOC-4412", name: "Dr. Jessica Wu" },
+  { id: "#DOC-4413", name: "Dr. Robert King" },
+];
 
 const initialAppointments = [
   {
@@ -56,6 +82,23 @@ export default function AppointmentsPage() {
   const [deleteApt, setDeleteApt] = useState(null);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [doctorsList, setDoctorsList] = useState(defaultDoctors);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("crm_doctors");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setDoctorsList(parsed.map((d) => ({ id: d.id, name: d.name })));
+        }
+      }
+    } catch {
+      // use defaultDoctors
+    }
+  }, []);
+
   const patientsCatalog = [
     { id: "PID-882910", name: "John Doe", phone: "+1 (555) 0123" },
     { id: "PID-882911", name: "Jane Gill", phone: "+1 (555) 0456" },
@@ -68,19 +111,18 @@ export default function AppointmentsPage() {
     patient: "",
     phone: "",
     doctor: "",
-    dateTime: "",
+    date: "",
+    timeSlot: "",
     source: "STAFF ENTRY",
-    status: "Confirmed",
   });
   const [editForm, setEditForm] = useState({
     id: "",
-    patientId: "",
     patient: "",
     phone: "",
     doctor: "",
-    dateTime: "",
-    source: "WHATSAPP",
-    status: "Confirmed",
+    date: "",
+    timeSlot: "",
+    source: "STAFF ENTRY",
   });
 
   const getStatusColor = (status) => {
@@ -92,19 +134,27 @@ export default function AppointmentsPage() {
     }
   };
 
-  const getDateCategory = (value) => {
-    if (!value) return "upcoming";
-    const d = new Date(value);
+  const getDateCategory = (dateStr) => {
+    if (!dateStr) return "upcoming";
+    const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return "upcoming";
-
     const today = new Date();
-    const sameDay =
-      d.getFullYear() === today.getFullYear() &&
-      d.getMonth() === today.getMonth() &&
-      d.getDate() === today.getDate();
-
-    if (sameDay) return "today";
+    today.setHours(0, 0, 0, 0);
+    d.setHours(0, 0, 0, 0);
+    if (d.getTime() === today.getTime()) return "today";
     return d < today ? "past" : "upcoming";
+  };
+
+  const buildTimeString = (dateStr, timeSlot) => {
+    if (!dateStr || !timeSlot) return "";
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return timeSlot;
+    const dateLabel = d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+    return `${dateLabel} ${timeSlot}`;
   };
 
   const splitDateAndTime = (value) => {
@@ -116,19 +166,6 @@ export default function AppointmentsPage() {
 
   const getDatePart = (value) => splitDateAndTime(value).date;
   const getTimePart = (value) => splitDateAndTime(value).time;
-
-  const formatDateTime = (value) => {
-    if (!value) return "";
-    const d = new Date(value);
-    return d.toLocaleString("en-US", {
-      month: "short",
-      day: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
 
   const createAptId = () => {
     const rnd = Math.floor(1000 + Math.random() * 9000);
@@ -147,35 +184,32 @@ export default function AppointmentsPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const category = getDateCategory(form.dateTime);
+    const timeStr = buildTimeString(form.date, form.timeSlot);
+    const category = getDateCategory(form.date);
     const newApt = {
       id: createAptId(),
       patient: form.patient,
       phone: form.phone,
       doctor: form.doctor,
       issue: "",
-      time: formatDateTime(form.dateTime),
+      time: timeStr,
       source: form.source,
-      status: form.status,
+      status: "Pending",
       dateCategory: category,
     };
     setAppointments((prev) => [newApt, ...prev]);
-    // Persist latest appointment per patient for Patients page
     try {
       if (typeof window !== "undefined") {
         const raw = window.localStorage.getItem("crm_latest_appointments");
         const existing = raw ? JSON.parse(raw) : {};
         const updated = {
           ...(existing && typeof existing === "object" ? existing : {}),
-          [newApt.patient]: {
-            time: newApt.time,
-            createdAt: new Date().toISOString(),
-          },
+          [newApt.patient]: { time: newApt.time, createdAt: new Date().toISOString() },
         };
         window.localStorage.setItem("crm_latest_appointments", JSON.stringify(updated));
       }
     } catch {
-      // ignore storage errors
+      // ignore
     }
     setShowModal(false);
     setForm({
@@ -183,28 +217,46 @@ export default function AppointmentsPage() {
       patient: "",
       phone: "",
       doctor: "",
-      dateTime: "",
+      date: "",
+      timeSlot: "",
       source: "STAFF ENTRY",
-      status: "Confirmed",
     });
   };
+
+  const handleConfirm = (apt) => {
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === apt.id && a.status === "Pending" ? { ...a, status: "Confirmed" } : a))
+    );
+  };
   
+  const parseTimeToDateAndSlot = (timeStr) => {
+    const { date: datePart, time: slotPart } = splitDateAndTime(timeStr);
+    if (!datePart) return { date: "", timeSlot: "" };
+    const d = new Date(datePart);
+    const date = Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+    const timeSlot = slotPart && TIME_SLOTS.includes(slotPart) ? slotPart : slotPart || "";
+    return { date, timeSlot };
+  };
+
   const openEdit = (apt) => {
+    const { date, timeSlot } = parseTimeToDateAndSlot(apt.time);
     setEditApt(apt);
     setEditForm({
       id: apt.id,
-      patientId: "",
       patient: apt.patient,
       phone: apt.phone,
       doctor: apt.doctor,
-      dateTime: "",
+      date,
+      timeSlot: timeSlot || apt.time?.match(/\d{1,2}:\d{2}\s*[AP]M\s*[-–]\s*\d{1,2}:\d{2}\s*[AP]M/i)?.[0] || "",
       source: apt.source,
-      status: apt.status,
     });
   };
-  
+
   const saveEdit = (e) => {
     e.preventDefault();
+    const slot = editForm.timeSlot || getTimePart(editApt.time);
+    const timeStr = buildTimeString(editForm.date, slot) || editApt.time;
+    const category = getDateCategory(editForm.date);
     setAppointments((prev) =>
       prev.map((a) =>
         a.id === editForm.id
@@ -213,9 +265,9 @@ export default function AppointmentsPage() {
               patient: editForm.patient,
               phone: editForm.phone,
               doctor: editForm.doctor,
-              time: editForm.dateTime ? formatDateTime(editForm.dateTime) : a.time,
+              time: timeStr,
               source: editForm.source,
-              status: editForm.status,
+              dateCategory: category,
             }
           : a
       )
@@ -261,60 +313,40 @@ export default function AppointmentsPage() {
         <h2 className="text-xl font-semibold">Managing 1,284 scheduled appointments</h2>
       </div>
 
-      {/* Filters */}
+      {/* Filters - Order: Today's Appointments, All Appointments, Upcoming, Past History */}
       <div className="flex flex-col md:flex-row gap-4 justify-between">
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => {
-              setFilter("all");
-              setCurrentPage(1);
-            }}
+            onClick={() => { setFilter("today"); setCurrentPage(1); }}
             className={`px-4 py-2 rounded-lg text-sm ${
-              filter === "all"
-                ? "bg-[#0F766E] text-white"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+              filter === "today" ? "bg-[#0F766E] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Today&apos;s Appointments
+          </button>
+          <button
+            onClick={() => { setFilter("all"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg text-sm ${
+              filter === "all" ? "bg-[#0F766E] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
             }`}
           >
             All Appointments
           </button>
           <button
-            onClick={() => {
-              setFilter("past");
-              setCurrentPage(1);
-            }}
+            onClick={() => { setFilter("upcoming"); setCurrentPage(1); }}
             className={`px-4 py-2 rounded-lg text-sm ${
-              filter === "past"
-                ? "bg-[#0F766E] text-white"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Past History
-          </button>
-          <button
-            onClick={() => {
-              setFilter("today");
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-lg text-sm ${
-              filter === "today"
-                ? "bg-[#0F766E] text-white"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Today
-          </button>
-          <button
-            onClick={() => {
-              setFilter("upcoming");
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-lg text-sm ${
-              filter === "upcoming"
-                ? "bg-[#0F766E] text-white"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+              filter === "upcoming" ? "bg-[#0F766E] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
             }`}
           >
             Upcoming
+          </button>
+          <button
+            onClick={() => { setFilter("past"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg text-sm ${
+              filter === "past" ? "bg-[#0F766E] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Past History
           </button>
         </div>
         
@@ -392,6 +424,18 @@ export default function AppointmentsPage() {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
+                      {apt.status === "Pending" && (
+                        <button
+                          className="p-2 rounded-lg hover:bg-green-50 text-green-700"
+                          onClick={() => handleConfirm(apt)}
+                          aria-label="Confirm"
+                          title="Mark as Confirmed"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                      )}
                       <button
                         className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
                         onClick={() => openEdit(apt)}
@@ -465,6 +509,18 @@ export default function AppointmentsPage() {
                     {apt.source}
                   </span>
                   <div className="flex items-center gap-2">
+                    {apt.status === "Pending" && (
+                      <button
+                        className="p-2 rounded-lg hover:bg-green-50 text-green-700"
+                        onClick={() => handleConfirm(apt)}
+                        aria-label="Confirm"
+                        title="Mark as Confirmed"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+                    )}
                     <button
                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
                       onClick={() => openEdit(apt)}
@@ -586,34 +642,40 @@ export default function AppointmentsPage() {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-700 mb-1">Doctor</label>
-                  <input
+                  <select
                     value={form.doctor}
                     onChange={(e) => setForm({ ...form, doctor: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                    placeholder="e.g. Dr. Sarah Smith"
                     required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Date/Time</label>
-                  <input
-                    type="datetime-local"
-                    value={form.dateTime}
-                    onChange={(e) => setForm({ ...form, dateTime: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Status</label>
-                  <select
-                    value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                   >
-                    <option>Confirmed</option>
-                    <option>Pending</option>
-                    <option>Cancelled</option>
+                    <option value="">Select doctor</option>
+                    {doctorsList.map((d) => (
+                      <option key={d.id} value={d.name}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Time Slot</label>
+                  <select
+                    value={form.timeSlot}
+                    onChange={(e) => setForm({ ...form, timeSlot: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    required
+                  >
+                    <option value="">Select time slot</option>
+                    {TIME_SLOTS.map((slot) => (
+                      <option key={slot} value={slot}>{slot}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -667,21 +729,42 @@ export default function AppointmentsPage() {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-700 mb-1">Doctor</label>
-                  <input
+                  <select
                     value={editForm.doctor}
                     onChange={(e) => setEditForm({ ...editForm, doctor: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     required
-                  />
+                  >
+                    <option value="">Select doctor</option>
+                    {doctorsList.map((d) => (
+                      <option key={d.id} value={d.name}>{d.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Date/Time</label>
+                  <label className="block text-sm text-gray-700 mb-1">Date</label>
                   <input
-                    type="datetime-local"
-                    value={editForm.dateTime}
-                    onChange={(e) => setEditForm({ ...editForm, dateTime: e.target.value })}
+                    type="date"
+                    value={editForm.date}
+                    onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    required
                   />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm text-gray-700 mb-1">Current Time Slot</label>
+                  <p className="text-sm text-gray-600 py-2">{editForm.timeSlot || "—"}</p>
+                  <label className="block text-sm text-gray-700 mb-1 mt-2">Select New Time Slot (optional)</label>
+                  <select
+                    value={editForm.timeSlot}
+                    onChange={(e) => setEditForm({ ...editForm, timeSlot: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="">Keep current</option>
+                    {TIME_SLOTS.map((slot) => (
+                      <option key={slot} value={slot}>{slot}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm text-gray-700 mb-1">Source</label>
@@ -692,18 +775,6 @@ export default function AppointmentsPage() {
                   >
                     <option>WHATSAPP</option>
                     <option>STAFF ENTRY</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Status</label>
-                  <select
-                    value={editForm.status}
-                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                  >
-                    <option>Confirmed</option>
-                    <option>Pending</option>
-                    <option>Cancelled</option>
                   </select>
                 </div>
               </div>
