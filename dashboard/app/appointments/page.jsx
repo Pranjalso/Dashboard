@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 // Generate 15-min time slots from 8:00 AM to 6:00 PM
@@ -75,7 +75,7 @@ const initialAppointments = [
   },
 ];
 
-export default function AppointmentsPage() {
+function AppointmentsPageContent() {
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [appointments, setAppointments] = useState(initialAppointments);
@@ -101,7 +101,7 @@ export default function AppointmentsPage() {
     } catch {
       // use defaultDoctors
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     const action = searchParams?.get("action");
@@ -849,5 +849,13 @@ export default function AppointmentsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AppointmentsPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-gray-600">Loading appointments…</div>}>
+      <AppointmentsPageContent />
+    </Suspense>
   );
 }
