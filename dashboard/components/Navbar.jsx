@@ -19,7 +19,9 @@ export default function Navbar({ title, description, onMenuClick }) {
         </button>
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{title}</h1>
-          <p className="text-gray-600 mt-1">{description}</p>
+          {description ? (
+            <p className="text-gray-600 mt-1">{description}</p>
+          ) : null}
         </div>
       </div>
 

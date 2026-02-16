@@ -51,8 +51,8 @@ const mockLogs = [
 
 const sourceBadge = (source) => {
   const value = source?.toUpperCase() || "";
-  if (value === "WHATSAPP") return "bg-blue-50 text-blue-800";
-  if (value === "STAFF ENTRY") return "bg-gray-100 text-gray-800";
+  if (value === "WHATSAPP") return "bg-green-50 text-green-800";
+  if (value === "STAFF ENTRY") return "bg-blue-50 text-blue-800";
   return "bg-slate-100 text-slate-800";
 };
 
@@ -106,7 +106,7 @@ export default function ActivityLogsPage() {
       </div>
 
       {/* Filters - dark green toggle buttons */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 space-y-4">
+      <div className="bg-white border border-gray-300 rounded-xl p-4 md:p-5 space-y-4">
         <div className="flex flex-col md:flex-row gap-4 justify-between">
           <div className="flex flex-wrap gap-2 text-xs md:text-sm">
             <button
@@ -199,7 +199,7 @@ export default function ActivityLogsPage() {
       </div>
 
       {/* Logs table - Event, Details, Timestamp, Source (Actor and Severity hidden) */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-300 rounded-xl overflow-hidden">
         {/* Desktop */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
@@ -210,7 +210,7 @@ export default function ActivityLogsPage() {
                 <th className="text-left px-4 py-3">Source</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-300">
               {filteredLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
@@ -248,7 +248,7 @@ export default function ActivityLogsPage() {
         {/* Mobile cards */}
         <div className="md:hidden p-4 space-y-3">
           {filteredLogs.map((log) => (
-            <div key={log.id} className="border border-gray-200 rounded-xl p-3 text-sm">
+            <div key={log.id} className="border border-gray-300 rounded-xl p-3 text-sm">
               <div className="font-semibold text-gray-900 mb-1">{log.eventType}</div>
               <p className="text-xs text-gray-600 mb-2">{getEventDetails(log)}</p>
               <p className="text-[11px] text-gray-500 mb-1">
@@ -276,4 +276,3 @@ export default function ActivityLogsPage() {
     </div>
   );
 }
-

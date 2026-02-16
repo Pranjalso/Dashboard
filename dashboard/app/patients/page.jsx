@@ -85,17 +85,6 @@ export default function PatientsPage() {
     city: "",
   });
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [editPatient] = useState(null);
-  const [editForm] = useState({
-    id: "",
-    name: "",
-    dob: "",
-    gender: "Male",
-    phone: "",
-    lastVisit: "Today",
-    nextAppointment: "",
-    status: "Active",
-  });
 
   const splitAppointmentDateTime = (value) => {
     if (!value) return { date: "", time: "" };
@@ -156,7 +145,9 @@ export default function PatientsPage() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          setPatients(parsed);
+          setTimeout(() => {
+            setPatients(parsed);
+          }, 0);
           return;
         }
       }
@@ -185,21 +176,23 @@ export default function PatientsPage() {
       const map = JSON.parse(raw);
       if (!map || typeof map !== "object") return;
 
-      setPatients((prev) =>
-        prev.map((p) => {
-          const stored = map[p.name];
-          if (!stored || !stored.time) {
+      setTimeout(() => {
+        setPatients((prev) =>
+          prev.map((p) => {
+            const stored = map[p.name];
+            if (!stored || !stored.time) {
+              return {
+                ...p,
+                nextAppointment: p.nextAppointment || "",
+              };
+            }
             return {
               ...p,
-              nextAppointment: p.nextAppointment || "",
+              nextAppointment: stored.time,
             };
-          }
-          return {
-            ...p,
-            nextAppointment: stored.time,
-          };
-        })
-      );
+          })
+        );
+      }, 0);
     } catch {
       // ignore storage errors
     }

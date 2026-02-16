@@ -48,7 +48,6 @@ const initialDoctors = [
 export default function DoctorsPage() {
   const [search, setSearch] = useState("");
   const [doctors, setDoctors] = useState(initialDoctors);
-  const [viewDoctor] = useState(null);
   const [deleteDoctor, setDeleteDoctor] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({
@@ -121,7 +120,9 @@ export default function DoctorsPage() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          setDoctors(parsed);
+          setTimeout(() => {
+            setDoctors(parsed);
+          }, 0);
           return;
         }
       }

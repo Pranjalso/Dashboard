@@ -12,6 +12,8 @@ export default function AppShell({ children }) {
 
   const getPageTitle = () => {
     if (pathname.includes("/appointments")) return "Appointment Directory";
+    if (pathname.startsWith("/patients/")) return "Patient Details";
+    if (pathname.startsWith("/doctors/profile/")) return "Doctor Details";
     if (pathname.includes("/patients")) return "Patient Management";
     if (pathname.includes("/doctors")) return "Doctor Management";
     if (pathname.includes("/dashboard")) return "Dashboard Overview";
@@ -20,6 +22,8 @@ export default function AppShell({ children }) {
 
   const getPageDescription = () => {
     if (pathname.includes("/appointments")) return "Managing 1,284 scheduled appointments";
+    if (pathname.startsWith("/patients/")) return "";
+    if (pathname.startsWith("/doctors/profile/")) return "";
     if (pathname.includes("/patients")) return "Manage all patient records and information";
     if (pathname.includes("/doctors")) return "Manage doctors and their schedules";
     if (pathname.includes("/dashboard")) return "Welcome back, Admin. Here's what's happening today.";

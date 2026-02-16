@@ -83,9 +83,13 @@ export default function PatientDetailPage() {
         parsed = fallbackPatients;
         window.localStorage.setItem("crm_patients", JSON.stringify(parsed));
       }
-      setPatients(parsed);
+      setTimeout(() => {
+        setPatients(parsed);
+      }, 0);
     } catch {
-      setPatients(fallbackPatients);
+      setTimeout(() => {
+        setPatients(fallbackPatients);
+      }, 0);
     }
   }, [patientId]);
 
@@ -96,17 +100,19 @@ export default function PatientDetailPage() {
 
   useEffect(() => {
     if (!patient) return;
-    setForm({
-      name: patient.name || "",
-      dob: patient.dob && patient.dob.length === 10 && patient.dob.includes("-")
-        ? patient.dob
-        : "",
-      gender: patient.gender || "Male",
-      phone: patient.phone || "",
-      city: patient.city || "",
-      lastVisit: patient.lastVisit || "",
-      status: patient.status || "Active",
-    });
+    setTimeout(() => {
+      setForm({
+        name: patient.name || "",
+        dob: patient.dob && patient.dob.length === 10 && patient.dob.includes("-")
+          ? patient.dob
+          : "",
+        gender: patient.gender || "Male",
+        phone: patient.phone || "",
+        city: patient.city || "",
+        lastVisit: patient.lastVisit || "",
+        status: patient.status || "Active",
+      });
+    }, 0);
   }, [patient]);
 
   const handleSave = (e) => {
@@ -184,13 +190,24 @@ export default function PatientDetailPage() {
             <span className="mx-1">/</span>
             <span className="text-gray-900">Patient Details</span>
           </nav>
-          <h1 className="text-2xl font-semibold text-gray-900">{patient.name}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            ID {patient.id} •{" "}
-            {patient.age ? `${patient.age} yrs` : "Age not available"} • {patient.gender}
-          </p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-gray-900">{patient.name}</h1>
         </div>
         <div className="flex flex-wrap gap-3">
+          <button
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            onClick={() => {
+              // placeholder action
+            }}
+            aria-label="Run Cron"
+            title="Run Cron"
+          >
+            <span className="inline-flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+              Run Cron
+            </span>
+          </button>
           <button
             className="btn-secondary text-sm"
             onClick={() => router.push("/patients")}
@@ -205,6 +222,131 @@ export default function PatientDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* New Top Section: Patient Details (blue box) */}
+      <section className="bg-blue-50 border border-blue-200 rounded-xl p-5 md:p-6">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4">Patient Details</h2>
+        {isEditing ? (
+          <form
+            onSubmit={handleSave}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base"
+          >
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Full Name</label>
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Date of Birth</label>
+              <input
+                type="date"
+                value={form.dob}
+                onChange={(e) => setForm({ ...form, dob: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Gender</label>
+              <select
+                value={form.gender}
+                onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+              >
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Phone</label>
+              <input
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">City</label>
+              <input
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Last Visit</label>
+              <input
+                value={form.lastVisit}
+                onChange={(e) => setForm({ ...form, lastVisit: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Status</label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+              >
+                <option>Active</option>
+                <option>Inactive</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2 flex justify-end gap-3 mt-2">
+              <button
+                type="button"
+                className="btn-secondary text-sm"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn-primary text-sm"
+                disabled={saving}
+              >
+                {saving ? "Saving..." : "Save changes"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base">
+            <div>
+              <p className="text-gray-600">Full Name</p>
+              <p className="font-medium text-gray-900">{patient.name}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">Date of Birth</p>
+              <p className="font-medium text-gray-900">
+                {patient.dob || "Not recorded"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-600">Gender</p>
+              <p className="font-medium text-gray-900">{patient.gender}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">City</p>
+              <p className="font-medium text-gray-900">{patient.city || "—"}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">Phone</p>
+              <p className="font-medium text-gray-900">{patient.phone}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">Last Visit</p>
+              <p className="font-medium text-gray-900">
+                {patient.lastVisit || "Not recorded"}
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* Top stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -251,136 +393,71 @@ export default function PatientDetailPage() {
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Demographics & contact */}
-        <section className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-4 md:p-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">
-            Demographics & Contact
-          </h2>
-          {isEditing ? (
-            <form
-              onSubmit={handleSave}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm"
-            >
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Full Name</label>
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Date of Birth</label>
-                <input
-                  type="date"
-                  value={form.dob}
-                  onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Gender</label>
-                <select
-                  value={form.gender}
-                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                >
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Phone</label>
-                <input
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">City</label>
-                <input
-                  value={form.city}
-                  onChange={(e) => setForm({ ...form, city: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Last Visit</label>
-                <input
-                  value={form.lastVisit}
-                  onChange={(e) => setForm({ ...form, lastVisit: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                >
-                  <option>Active</option>
-                  <option>Inactive</option>
-                </select>
-              </div>
-              <div className="sm:col-span-2 flex justify-end gap-3 mt-2">
-                <button
-                  type="button"
-                  className="btn-secondary text-sm"
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary text-sm"
-                  disabled={saving}
-                >
-                  {saving ? "Saving..." : "Save changes"}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500">Full Name</p>
-                <p className="font-medium text-gray-900">{patient.name}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Date of Birth</p>
-                <p className="font-medium text-gray-900">
-                  {patient.dob || "Not recorded"}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500">Gender</p>
-                <p className="font-medium text-gray-900">{patient.gender}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">City</p>
-                <p className="font-medium text-gray-900">{patient.city || "—"}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Phone</p>
-                <p className="font-medium text-gray-900">{patient.phone}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Last Visit</p>
-                <p className="font-medium text-gray-900">
-                  {patient.lastVisit || "Not recorded"}
-                </p>
-              </div>
-            </div>
-          )}
-        </section>
-      </div>
+      {/* Appointment Details */}
+      <section className="bg-white border border-gray-200 rounded-xl p-4 md:p-6">
+        <h2 className="text-sm font-semibold text-gray-900 mb-4">Appointment Details</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left px-4 py-2">Appointment Date</th>
+                <th className="text-left px-4 py-2">Doctor</th>
+                <th className="text-left px-4 py-2">Time Slot</th>
+                <th className="text-left px-4 py-2">Disease</th>
+                <th className="text-left px-4 py-2">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              <tr>
+                <td className="px-4 py-2">{getApptDatePart(patient.nextAppointment) || "—"}</td>
+                <td className="px-4 py-2">{patient.doctor || "—"}</td>
+                <td className="px-4 py-2">{getApptTimePart(patient.nextAppointment) || "—"}</td>
+                <td className="px-4 py-2">{patient.disease || patient.specialty || "—"}</td>
+                <td className="px-4 py-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    patient.status?.toLowerCase() === "active"
+                      ? "bg-green-100 text-green-800"
+                      : patient.status?.toLowerCase() === "closed"
+                      ? "bg-gray-100 text-gray-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}>
+                    {patient.status || "Pending"}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Follow-up Details */}
+      <section className="bg-white border border-gray-200 rounded-xl p-4 md:p-6">
+        <h2 className="text-sm font-semibold text-gray-900 mb-4">Follow-up Details</h2>
+        <ul className="space-y-3">
+          <li className="text-sm">
+            <span className="font-medium text-gray-900">Post follow-up sent</span>
+            <span className="text-gray-500"> • Oct 24, 2023 11:00 AM</span>
+          </li>
+          <li className="text-sm">
+            <span className="font-medium text-gray-900">Appointment reminder sent</span>
+            <span className="text-gray-500"> • Oct 23, 2023 05:30 PM</span>
+          </li>
+          <li className="text-sm">
+            <span className="font-medium text-gray-900">WhatsApp confirmation requested</span>
+            <span className="text-gray-500"> • Oct 22, 2023 09:15 AM</span>
+          </li>
+        </ul>
+      </section>
+
+      {/* Green Box with Run Cron */}
+      {/* <section className="bg-green-50 border border-green-200 rounded-xl p-4 md:p-6">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-700">Automation utilities</p>
+          <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm">
+            Run Cron
+          </button>
+        </div>
+      </section> */}
     </div>
   );
 }
-

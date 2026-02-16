@@ -1,6 +1,6 @@
 import StatCard from "@/components/StatCard";
 import AppointmentList from "@/components/AppointmentList";
-import ActivityFeed from "@/components/ActivityFeed";
+import ActivityLogPreview from "@/components/ActivityLogPreview";
 import ScheduleTable from "@/components/ScheduleTable";
 
 export default function DashboardPage() {
@@ -15,13 +15,13 @@ export default function DashboardPage() {
           icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
         />
         <StatCard 
-          title="Pending WhatsApp Flows" 
+          title="Active Patients" 
           value="18" 
           tag="AUTOMATED"
           icon="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
         />
         <StatCard 
-          title="New Patients" 
+          title="Total Patients" 
           value="12" 
           tag="NEW"
           icon="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
@@ -37,7 +37,7 @@ export default function DashboardPage() {
       {/* Middle Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AppointmentList />
-        <ActivityFeed />
+        <ActivityLogPreview />
       </div>
 
       {/* Schedule Table */}

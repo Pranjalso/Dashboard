@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 // Generate 15-min time slots from 8:00 AM to 6:00 PM
 const generateTimeSlots = () => {
@@ -75,6 +76,7 @@ const initialAppointments = [
 ];
 
 export default function AppointmentsPage() {
+  const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [appointments, setAppointments] = useState(initialAppointments);
   const [showModal, setShowModal] = useState(false);
@@ -91,13 +93,22 @@ export default function AppointmentsPage() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setDoctorsList(parsed.map((d) => ({ id: d.id, name: d.name })));
+          setTimeout(() => {
+            setDoctorsList(parsed.map((d) => ({ id: d.id, name: d.name })));
+          }, 0);
         }
       }
     } catch {
       // use defaultDoctors
     }
   }, []);
+
+  useEffect(() => {
+    const action = searchParams?.get("action");
+    if (action === "new") {
+      setTimeout(() => setShowModal(true), 0);
+    }
+  }, [searchParams]);
 
   const patientsCatalog = [
     { id: "PID-882910", name: "John Doe", phone: "+1 (555) 0123" },
@@ -283,9 +294,11 @@ export default function AppointmentsPage() {
 
   const filteredAppointments = appointments
     .filter((apt) => {
-      if (filter === "today") return apt.dateCategory === "today";
-      if (filter === "upcoming") return apt.dateCategory === "upcoming";
-      if (filter === "past") return apt.dateCategory === "past";
+      if (filter === "all") return true;
+      const category = getDateCategory(getDatePart(apt.time));
+      if (filter === "today") return category === "today";
+      if (filter === "upcoming") return category === "upcoming";
+      if (filter === "past") return category === "past";
       return true;
     })
     .filter((apt) => {
@@ -393,6 +406,16 @@ export default function AppointmentsPage() {
               </tr>
             </thead>
             <tbody>
+              {paginatedAppointments.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-sm text-gray-600">
+                    {filter === "today" && "No appointments for today"}
+                    {filter === "upcoming" && "No upcoming appointments"}
+                    {filter === "past" && "No past history"}
+                    {filter === "all" && "No appointments found"}
+                  </td>
+                </tr>
+              )}
               {paginatedAppointments.map((apt) => (
                 <tr key={apt.id} className="border-t border-gray-200 hover:bg-gray-50">
                   <td className="p-4 text-sm font-medium">{apt.id}</td>
@@ -411,10 +434,14 @@ export default function AppointmentsPage() {
                     )}
                   </td>
                   <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      apt.source === "WHATSAPP" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      apt.source === "WHATSAPP"
+                        ? "bg-green-100 text-green-800"
+                        : apt.source === "STAFF ENTRY"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-gray-100 text-gray-800"
                     }`}>
-                      {apt.source}
+                      {apt.source === "WHATSAPP" ? "WhatsApp" : apt.source === "STAFF ENTRY" ? "Staff Entry" : apt.source}
                     </span>
                   </td>
                   <td className="p-4">
@@ -464,6 +491,14 @@ export default function AppointmentsPage() {
 
         {/* Mobile Cards */}
         <div className="md:hidden space-y-4 p-4">
+          {paginatedAppointments.length === 0 && (
+            <p className="text-sm text-gray-600 text-center py-8">
+              {filter === "today" && "No appointments for today"}
+              {filter === "upcoming" && "No upcoming appointments"}
+              {filter === "past" && "No past history"}
+              {filter === "all" && "No appointments found"}
+            </p>
+          )}
           {paginatedAppointments.map((apt) => (
             <div key={apt.id} className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="flex justify-between items-start mb-3">
@@ -503,10 +538,14 @@ export default function AppointmentsPage() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    apt.source === "WHATSAPP" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                    apt.source === "WHATSAPP"
+                      ? "bg-green-100 text-green-800"
+                      : apt.source === "STAFF ENTRY"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}>
-                    {apt.source}
+                    {apt.source === "WHATSAPP" ? "WhatsApp" : apt.source === "STAFF ENTRY" ? "Staff Entry" : apt.source}
                   </span>
                   <div className="flex items-center gap-2">
                     {apt.status === "Pending" && (

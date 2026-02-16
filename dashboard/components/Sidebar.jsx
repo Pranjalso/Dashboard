@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Sidebar({ onNavigate, mobile = false }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems = [
@@ -81,11 +82,17 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         })}
       </nav>
 
-      <button className={`mt-6 bg-[#0F766E] text-white py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 ${isCollapsed ? 'px-3' : 'px-4'}`}>
+      <button
+        onClick={() => {
+          router.push("/appointments?action=new");
+          onNavigate && onNavigate();
+        }}
+        className={`mt-6 bg-[#0F766E] text-white py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 ${isCollapsed ? 'px-3' : 'px-4'}`}
+      >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
-        {!isCollapsed && "New Appointment"}
+        <span className={isCollapsed ? "hidden" : ""}>New Appointment</span>
       </button>
     </aside>
   );
