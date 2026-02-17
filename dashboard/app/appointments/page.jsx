@@ -234,11 +234,6 @@ function AppointmentsPageContent() {
     });
   };
 
-  const handleConfirm = (apt) => {
-    setAppointments((prev) =>
-      prev.map((a) => (a.id === apt.id && a.status === "Pending" ? { ...a, status: "Confirmed" } : a))
-    );
-  };
   
   const parseTimeToDateAndSlot = (timeStr) => {
     const { date: datePart, time: slotPart } = splitDateAndTime(timeStr);
@@ -451,18 +446,6 @@ function AppointmentsPageContent() {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
-                      {apt.status === "Pending" && (
-                        <button
-                          className="p-2 rounded-lg hover:bg-green-50 text-green-700"
-                          onClick={() => handleConfirm(apt)}
-                          aria-label="Confirm"
-                          title="Mark as Confirmed"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </button>
-                      )}
                       <button
                         className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
                         onClick={() => openEdit(apt)}
@@ -548,18 +531,6 @@ function AppointmentsPageContent() {
                     {apt.source === "WHATSAPP" ? "WhatsApp" : apt.source === "STAFF ENTRY" ? "Staff Entry" : apt.source}
                   </span>
                   <div className="flex items-center gap-2">
-                    {apt.status === "Pending" && (
-                      <button
-                        className="p-2 rounded-lg hover:bg-green-50 text-green-700"
-                        onClick={() => handleConfirm(apt)}
-                        aria-label="Confirm"
-                        title="Mark as Confirmed"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </button>
-                    )}
                     <button
                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
                       onClick={() => openEdit(apt)}

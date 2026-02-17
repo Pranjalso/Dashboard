@@ -86,7 +86,7 @@ export default function ActivityLogPreview() {
   const logs = useMemo(() => mockLogs, []);
  
   return (
-    <section className="bg-white border border-gray-400 rounded-xl p-5">
+    <section className="bg-white border border-gray-300 rounded-xl p-5">
       <header className="flex justify-between mb-4">
         <h2 className="font-semibold">Activity Logs</h2>
         <Link
@@ -107,9 +107,9 @@ export default function ActivityLogPreview() {
             </tr>
           </thead>
         </table>
-        <div className="max-h-[192px] overflow-y-auto border-t border-gray-400">
+        <div className="max-h-[192px] overflow-y-auto border-t border-gray-300">
           <table className="w-full text-sm table-fixed">
-            <tbody className="divide-y divide-gray-400">
+            <tbody className="divide-y divide-gray-300">
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 w-1/2">

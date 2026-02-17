@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 
 const fallbackPatients = [
   {
@@ -182,16 +181,7 @@ export default function PatientDetailPage() {
     <div className="space-y-6">
       {/* Header / Breadcrumb */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <nav className="text-xs text-gray-500 mb-1">
-            <Link href="/patients" className="hover:text-gray-700">
-              Patients
-            </Link>
-            <span className="mx-1">/</span>
-            <span className="text-gray-900">Patient Details</span>
-          </nav>
-          <h1 className="text-3xl md:text-4xl font-semibold text-gray-900">{patient.name}</h1>
-        </div>
+        <div />
         <div className="flex flex-wrap gap-3">
           <button
             className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow hover:from-emerald-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
@@ -223,9 +213,8 @@ export default function PatientDetailPage() {
         </div>
       </div>
 
-      {/* New Top Section: Patient Details (blue box) */}
+      {/* Top Section */}
       <section className="bg-blue-50 border border-blue-200 rounded-xl p-5 md:p-6">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4">Patient Details</h2>
         {isEditing ? (
           <form
             onSubmit={handleSave}
@@ -395,7 +384,7 @@ export default function PatientDetailPage() {
 
       {/* Appointment Details */}
       <section className="bg-white border border-gray-200 rounded-xl p-4 md:p-6">
-        <h2 className="text-sm font-semibold text-gray-900 mb-4">Appointment Details</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Appointment Details</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
@@ -432,7 +421,7 @@ export default function PatientDetailPage() {
 
       {/* Follow-up Details */}
       <section className="bg-white border border-gray-200 rounded-xl p-4 md:p-6">
-        <h2 className="text-sm font-semibold text-gray-900 mb-4">Follow-up Details</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Follow-up Details</h2>
         <ul className="space-y-3">
           <li className="text-sm">
             <span className="font-medium text-gray-900">Post follow-up sent</span>

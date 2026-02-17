@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 
 const fallbackDoctors = [
   {
@@ -169,19 +168,7 @@ export default function DoctorDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <nav className="text-xs text-gray-500 mb-1">
-            <Link href="/doctors" className="hover:text-gray-700">
-              Doctors
-            </Link>
-            <span className="mx-1">/</span>
-            <span className="text-gray-900">Doctor Details</span>
-          </nav>
-          <h1 className="text-2xl font-semibold text-gray-900">{doctor.name}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {doctor.specialization} • {doctor.id}
-          </p>
-        </div>
+        <div />
         <div className="flex flex-wrap gap-3">
           <button
             className="btn-secondary text-sm"
@@ -200,7 +187,6 @@ export default function DoctorDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-5">Doctor Details</h2>
           {isEditing ? (
             <form
               onSubmit={handleSave}
@@ -281,36 +267,45 @@ export default function DoctorDetailPage() {
                 <p className="text-xs text-gray-600 mb-1">Specialization</p>
                 <p className="font-semibold text-gray-900">{doctor.specialization}</p>
               </div>
+              
               <div className="sm:col-span-3 bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <p className="text-xs text-gray-600 mb-1">Schedule</p>
-                <p className="font-semibold text-gray-900">{timeRange || doctor.schedule}</p>
-                {days && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {days
-                      .split(/[,\u2013-]/)
-                      .map((d) => d.trim())
-                      .filter(Boolean)
-                      .map((d) => {
-                        const map = {
-                          Mon: "bg-teal-50 text-teal-700 border-teal-200",
-                          Tue: "bg-indigo-50 text-indigo-700 border-indigo-200",
-                          Wed: "bg-purple-50 text-purple-700 border-purple-200",
-                          Thu: "bg-amber-50 text-amber-700 border-amber-200",
-                          Fri: "bg-sky-50 text-sky-700 border-sky-200",
-                          Sat: "bg-rose-50 text-rose-700 border-rose-200",
-                          Sun: "bg-red-50 text-red-700 border-red-200",
-                        };
-                        const cls = map[d] || "bg-gray-50 text-gray-700 border-gray-200";
-                        return (
-                          <span
-                            key={d}
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium border ${cls}`}
-                          >
-                            {d}
-                          </span>
-                        );
-                      })}
-                  </div>
+                {doctor.status === "Emergency" ? (
+                  <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-red-100 text-red-700">
+                    Emergency
+                  </span>
+                ) : (
+                  <>
+                    <p className="font-semibold text-gray-900">{timeRange || doctor.schedule}</p>
+                    {days && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {days
+                          .split(/[,\u2013-]/)
+                          .map((d) => d.trim())
+                          .filter(Boolean)
+                          .map((d) => {
+                            const map = {
+                              Mon: "bg-teal-50 text-teal-700 border-teal-200",
+                              Tue: "bg-indigo-50 text-indigo-700 border-indigo-200",
+                              Wed: "bg-purple-50 text-purple-700 border-purple-200",
+                              Thu: "bg-amber-50 text-amber-700 border-amber-200",
+                              Fri: "bg-sky-50 text-sky-700 border-sky-200",
+                              Sat: "bg-rose-50 text-rose-700 border-rose-200",
+                              Sun: "bg-red-50 text-red-700 border-red-200",
+                            };
+                            const cls = map[d] || "bg-gray-50 text-gray-700 border-gray-200";
+                            return (
+                              <span
+                                key={d}
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium border ${cls}`}
+                              >
+                                {d}
+                              </span>
+                            );
+                          })}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -487,7 +482,7 @@ export default function DoctorDetailPage() {
                   <button
                     className="btn-primary text-sm"
                     onClick={() => {
-                      const updated = { ...doctor, status: "Emergency" };
+                      const updated = { ...doctor, status: "Emergency", schedule: "Emergency" };
                       const updatedList = doctors.map((d) => (d.id === doctor.id ? updated : d));
                       setDoctors(updatedList);
                       try {
@@ -503,43 +498,7 @@ export default function DoctorDetailPage() {
               </div>
             )}
 
-            <div className="mt-4 border-t pt-3">
-              <div>
-                <p className="text-gray-600">Current Time</p>
-                <p className="font-medium text-gray-900">{timeRange || "Not configured"}</p>
-              </div>
-              {days && (
-                <div className="mt-2">
-                  <p className="text-gray-600 mb-1">Days</p>
-                  <div className="flex flex-wrap gap-1">
-                    {days
-                      .split(/[,\u2013-]/)
-                      .map((d) => d.trim())
-                      .filter(Boolean)
-                      .map((d) => {
-                        const map = {
-                          Mon: "bg-teal-50 text-teal-700 border-teal-200",
-                          Tue: "bg-indigo-50 text-indigo-700 border-indigo-200",
-                          Wed: "bg-purple-50 text-purple-700 border-purple-200",
-                          Thu: "bg-amber-50 text-amber-700 border-amber-200",
-                          Fri: "bg-sky-50 text-sky-700 border-sky-200",
-                          Sat: "bg-rose-50 text-rose-700 border-rose-200",
-                          Sun: "bg-red-50 text-red-700 border-red-200",
-                        };
-                        const cls = map[d] || "bg-gray-50 text-gray-700 border-gray-200";
-                        return (
-                          <span
-                            key={d}
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium border ${cls}`}
-                          >
-                            {d}
-                          </span>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
-            </div>
+           
           </div>
         </section>
       </div>
@@ -572,26 +531,26 @@ export default function DoctorDetailPage() {
       </div>
 
       <section className="bg-white border border-gray-200 rounded-xl p-4 md:p-6">
-        <h2 className="text-sm font-semibold text-gray-900 mb-4">Your Today’s Appointment</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Your Today’s Appointment</h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+          <table className="w-full text-sm border border-gray-200 border-collapse">
+            <thead className="bg-gray-50 text-xs text-gray-600 uppercase tracking-wide">
               <tr>
-                <th className="text-left px-4 py-2">Appointment ID</th>
-                <th className="text-left px-4 py-2">Patient ID</th>
-                <th className="text-left px-4 py-2">Patient Name</th>
-                <th className="text-left px-4 py-2">Date of Appointment</th>
-                <th className="text-left px-4 py-2">Time Slot</th>
-                <th className="text-left px-4 py-2">Age</th>
-                <th className="text-left px-4 py-2">Phone Number</th>
-                <th className="text-left px-4 py-2">Disease</th>
-                <th className="text-left px-4 py-2">Status</th>
-                <th className="text-left px-4 py-2">Action</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Appointment ID</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Patient ID</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Patient Name</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Date of Appointment</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Time Slot</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Age</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Phone Number</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Disease</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Status</th>
+                <th className="text-left px-4 py-2 border border-gray-200">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-sm text-gray-600">
+                <td colSpan={10} className="px-4 py-8 text-center text-sm text-gray-600 border border-gray-200">
                   No appointments for today
                 </td>
               </tr>
