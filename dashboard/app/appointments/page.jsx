@@ -388,7 +388,7 @@ function AppointmentsPageContent() {
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 text-gray-800">
               <tr>
                 <th className="text-left p-4 text-sm font-semibold text-gray-700">ID</th>
                 <th className="text-left p-4 text-sm font-semibold text-gray-700">PATIENT NAME</th>

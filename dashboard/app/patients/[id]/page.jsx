@@ -39,16 +39,6 @@ const splitAppointmentDateTime = (value) => {
 const getApptDatePart = (value) => splitAppointmentDateTime(value).date;
 const getApptTimePart = (value) => splitAppointmentDateTime(value).time;
 
-const calcAge = (dobStr) => {
-  if (!dobStr) return "";
-  const now = new Date();
-  const dob = new Date(dobStr);
-  let age = now.getFullYear() - dob.getFullYear();
-  const m = now.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-  return age;
-};
-
 export default function PatientDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -57,7 +47,6 @@ export default function PatientDetailPage() {
   const [patients, setPatients] = useState(null);
   const [form, setForm] = useState({
     name: "",
-    dob: "",
     gender: "Male",
     phone: "",
     city: "",
@@ -102,9 +91,6 @@ export default function PatientDetailPage() {
     setTimeout(() => {
       setForm({
         name: patient.name || "",
-        dob: patient.dob && patient.dob.length === 10 && patient.dob.includes("-")
-          ? patient.dob
-          : "",
         gender: patient.gender || "Male",
         phone: patient.phone || "",
         city: patient.city || "",
@@ -121,8 +107,6 @@ export default function PatientDetailPage() {
     const updated = {
       ...patient,
       name: form.name.trim(),
-      dob: form.dob,
-      age: calcAge(form.dob),
       gender: form.gender,
       phone: form.phone.trim(),
       city: form.city.trim(),
@@ -230,20 +214,11 @@ export default function PatientDetailPage() {
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Date of Birth</label>
-              <input
-                type="date"
-                value={form.dob}
-                onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
-              />
-            </div>
-            <div>
               <label className="block text-xs text-gray-600 mb-1">Gender</label>
               <select
                 value={form.gender}
                 onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+                className="w-full border border-gray-300 rounded-lg px-3 pr-10 py-2 text-sm md:text-base"
               >
                 <option>Male</option>
                 <option>Female</option>
@@ -280,7 +255,7 @@ export default function PatientDetailPage() {
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base"
+                className="w-full border border-gray-300 rounded-lg px-3 pr-10 py-2 text-sm md:text-base"
               >
                 <option>Active</option>
                 <option>Inactive</option>
@@ -308,12 +283,6 @@ export default function PatientDetailPage() {
             <div>
               <p className="text-gray-600">Full Name</p>
               <p className="font-medium text-gray-900">{patient.name}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Date of Birth</p>
-              <p className="font-medium text-gray-900">
-                {patient.dob || "Not recorded"}
-              </p>
             </div>
             <div>
               <p className="text-gray-600">Gender</p>
@@ -387,7 +356,7 @@ export default function PatientDetailPage() {
         <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Appointment Details</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 text-gray-800">
               <tr>
                 <th className="text-left px-4 py-2">Appointment Date</th>
                 <th className="text-left px-4 py-2">Doctor</th>

@@ -79,7 +79,6 @@ export default function PatientsPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    dob: "",
     gender: "Male",
     phone: "",
     city: "",
@@ -96,15 +95,7 @@ export default function PatientsPage() {
   const getApptDatePart = (value) => splitAppointmentDateTime(value).date;
   const getApptTimePart = (value) => splitAppointmentDateTime(value).time;
 
-  const calcAge = (dobStr) => {
-    if (!dobStr) return "";
-    const now = new Date();
-    const dob = new Date(dobStr);
-    let age = now.getFullYear() - dob.getFullYear();
-    const m = now.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-    return age;
-  };
+  
 
   const createId = () => {
     const rand = Math.floor(100000 + Math.random() * 900000);
@@ -116,8 +107,6 @@ export default function PatientsPage() {
     const newPatient = {
       id: createId(),
       name: form.name.trim(),
-      dob: form.dob,
-      age: calcAge(form.dob),
       gender: form.gender,
       phone: form.phone.trim(),
       city: form.city.trim(),
@@ -129,7 +118,6 @@ export default function PatientsPage() {
     setShowModal(false);
     setForm({
       name: "",
-      dob: "",
       gender: "Male",
       phone: "",
       city: "",
@@ -242,7 +230,7 @@ export default function PatientsPage() {
           <select 
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm"
+            className="px-4 pr-10 py-3 border border-gray-200 rounded-lg bg-white text-sm"
           >
             <option value="all">All Patients</option>
             <option value="active">Active</option>
@@ -269,16 +257,15 @@ export default function PatientsPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">PATIENT ID</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">PATIENT NAME</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">DATE OF BIRTH</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">PATIENT ID</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">PATIENT NAME</th>
                 <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">GENDER</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">CITY</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">PHONE NUMBER</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">LAST VISIT</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">NEXT APPOINTMENT</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">STATUS</th>
-                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">ACTIONS</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">CITY</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">PHONE NUMBER</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">LAST VISIT</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">NEXT APPOINTMENT</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">STATUS</th>
+                <th className="text-left py-4 px-6 text-sm font-semibold text-gray-800">ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -292,9 +279,6 @@ export default function PatientsPage() {
                   </td>
                   <td className="py-4 px-6">
                     <div className="font-semibold">{patient.name}</div>
-                  </td>
-                  <td className="py-4 px-6 text-sm text-gray-600">
-                    {patient.dob} ({patient.age} y.o.)
                   </td>
                   <td className="py-4 px-6">
                     <span
@@ -390,10 +374,6 @@ export default function PatientsPage() {
               </div>
               
               <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex items-center justify-between">
-                  <span>DOB:</span>
-                  <span className="font-medium">{patient.dob} ({patient.age} y.o.)</span>
-                </div>
                 <div className="flex items-center justify-between">
                   <span>Gender:</span>
                   <span
@@ -581,21 +561,11 @@ export default function PatientsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Date of Birth</label>
-                  <input
-                    type="date"
-                    value={form.dob}
-                    onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                    required
-                  />
-                </div>
-                <div>
                   <label className="block text-sm text-gray-700 mb-1">Gender</label>
                   <select
                     value={form.gender}
                     onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-gray-200 rounded-lg px-3 pr-10 py-2 text-sm"
                   >
                     <option>Male</option>
                     <option>Female</option>

@@ -163,7 +163,7 @@ export default function DoctorsPage() {
         </div>
         
         <div className="flex gap-3">
-          <select className="px-4 py-3 border border-gray-300 rounded-lg bg-white text-sm min-w-[200px]">
+          <select className="px-4 pr-10 py-3 border border-gray-300 rounded-lg bg-white text-sm min-w-[200px]">
             <option>All Specializations</option>
             <option>Cardiologist</option>
             <option>Neurologist</option>
@@ -187,13 +187,13 @@ export default function DoctorsPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="text-left p-4 text-sm font-semibold text-gray-700">DOCTOR NAME</th>
-                <th className="text-left p-4 text-sm font-semibold text-gray-700">SPECIALIZATION</th>
-                <th className="text-left p-4 text-sm font-semibold text-gray-700">AVAILABLE TIME</th>
-                <th className="text-left p-4 text-sm font-semibold text-gray-700">PHONE NUMBER</th>
-                <th className="text-left p-4 text-sm font-semibold text-gray-700">TOTAL PATIENTS</th>
-                <th className="text-left p-4 text-sm font-semibold text-gray-700">STATUS</th>
-                <th className="text-left p-4 text-sm font-semibold text-gray-700">ACTIONS</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-800">DOCTOR NAME</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-800">SPECIALIZATION</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-800">AVAILABLE TIME</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-800">PHONE NUMBER</th>
+                <th className="text-center p-4 text-sm font-semibold text-gray-800">TOTAL PATIENTS</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-800">STATUS</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-800">ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -230,14 +230,18 @@ export default function DoctorsPage() {
                       )}
                     </td>
                     <td className="p-4 text-sm">{doctor.phone}</td>
-                    <td className="p-4">
-                      <div className="font-semibold">{doctor.patients}</div>
-                      <div
-                        className={`text-sm ${
-                          doctor.growth.startsWith("+") ? "text-green-600" : "text-gray-600"
-                        }`}
-                      >
-                        {doctor.growth}
+                    <td className="p-4 text-center">
+                      <div className="flex flex-col items-center">
+                        <div className="font-semibold text-gray-900">{doctor.patients}</div>
+                        <div
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full mt-1 ${
+                            doctor.growth.startsWith("+")
+                              ? "bg-green-50 text-green-700"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {doctor.growth}
+                        </div>
                       </div>
                     </td>
                     <td className="p-4">
@@ -358,11 +362,17 @@ export default function DoctorsPage() {
                 </div>
 
                 <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                  <div>
-                    <p className="font-semibold">{doctor.patients} patients</p>
-                    <p className={`text-xs ${doctor.growth.startsWith('+') ? 'text-green-600' : 'text-gray-600'}`}>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900">{doctor.patients} patients</span>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full mt-1 w-fit ${
+                        doctor.growth.startsWith("+")
+                          ? "bg-green-50 text-green-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
                       {doctor.growth}
-                    </p>
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     <Link
@@ -476,7 +486,7 @@ export default function DoctorsPage() {
                   <select
                     value={addForm.status}
                     onChange={(e) => setAddForm({ ...addForm, status: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-gray-300 rounded-lg px-3 pr-10 py-2 text-sm"
                   >
                     <option>Active</option>
                     <option>On Leave</option>

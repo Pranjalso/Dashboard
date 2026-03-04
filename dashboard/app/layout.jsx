@@ -11,7 +11,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+      </head>
       <body className={`${inter.className} bg-[#F5F7F6] text-[#0F172A]`}>
         <AppShell>{children}</AppShell>
       </body>
